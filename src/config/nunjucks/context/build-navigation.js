@@ -9,6 +9,11 @@ function buildNavigation(request) {
       text: 'About',
       url: '/about',
       isActive: request.path === '/about'
+    },
+    {
+      text: 'Upload your packaging data',
+      url: '/upload',
+      isActive: request.path === '/upload'
     }
   ]
 }
