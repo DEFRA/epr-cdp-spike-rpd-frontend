@@ -1,4 +1,4 @@
-import { uploadController, uploadDataController} from '~/src/server/upload/controller.js'
+import { uploadController, uploadDataController, uploadErrorController, uploadCompleteController} from '~/src/server/upload/controller.js'
 
 describe('#uploadController', () => {
   const mockViewHandler = {
@@ -21,5 +21,27 @@ describe('#uploadDataController', () => {
   test('Should provide expected response', () => {
     uploadDataController.handler(null, mockViewHandler)
     expect(mockViewHandler.redirect).toHaveBeenCalledWith("home")
+  })
+})
+
+describe('#uploadErrorController', () => {
+  const mockViewHandler = {
+    redirect: jest.fn()
+  }
+
+  test('Should provide expected response', () => {
+    uploadErrorController.handler(null, mockViewHandler)
+    expect(mockViewHandler.view).toHaveBeenCalled()
+  })
+})
+
+describe('#uploadCompleteController', () => {
+  const mockViewHandler = {
+    redirect: jest.fn()
+  }
+
+  test('Should provide expected response', () => {
+    uploadCompleteController.handler(null, mockViewHandler)
+    expect(mockViewHandler.view).toHaveBeenCalled()
   })
 })

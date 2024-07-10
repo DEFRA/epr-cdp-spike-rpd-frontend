@@ -1,4 +1,4 @@
-import { uploadController, uploadDataController } from "~/src/server/upload/controller.js";
+import { uploadController, uploadDataController, uploadCompleteController, uploadErrorController } from "~/src/server/upload/controller.js";
 
 /**
  * Sets up the routes used in the home page.
@@ -21,11 +21,22 @@ const upload = {
             payload: {
               output: 'data',
               parse: true,
-              multipart: true
+              allow: 'multipart/form-data',
+              multipart: { output: 'stream' }
               // maxBytes: 1024 * 1024 * 10 // 10 MB limit
             }
           },
           ...uploadDataController
+        },
+        {
+          method: 'GET',
+          path: '/upload/complete',
+          ...uploadCompleteController
+        },
+        {
+          method: 'GET',
+          path: '/upload/error',
+          ...uploadErrorController
         }
       ])
     }
