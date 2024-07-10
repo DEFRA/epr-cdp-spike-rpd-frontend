@@ -1,6 +1,7 @@
 # epr-cdp-spike-rpd-frontend
 
-Core delivery platform Node.js Frontend Template.
+Spike to investigate the complexity of EPR deploying into CDP
+
 
 - [Requirements](#requirements)
   - [Node.js](#nodejs)
