@@ -18,6 +18,11 @@ describe('#buildNavigation', () => {
         isActive: false,
         text: 'About',
         url: '/about'
+      },
+      {
+        isActive: false,
+        text: 'Upload your packaging data',
+        url: '/upload'
       }
     ])
   })
@@ -33,6 +38,11 @@ describe('#buildNavigation', () => {
         isActive: false,
         text: 'About',
         url: '/about'
+      },
+      {
+        isActive: false,
+        text: 'Upload your packaging data',
+        url: '/upload'
       }
     ])
   })

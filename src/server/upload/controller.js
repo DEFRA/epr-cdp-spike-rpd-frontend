@@ -3,8 +3,6 @@ import * as fs from 'fs'
 import path from 'path'
 const __dirname = path.resolve()
 
-
-
 /**
  * A GDS styled example home page controller.
  * Provided as an example, remove or modify as required.
@@ -20,7 +18,6 @@ const uploadController = {
 
 const uploadDataController = {
   handler: (request, h) => {
-
     const fileUpload = request.payload.fileUpload
     console.log('********************')
     if (
@@ -74,4 +71,9 @@ const uploadCompleteController = {
   }
 }
 
-export { uploadController, uploadDataController, uploadErrorController, uploadCompleteController }
+export {
+  uploadController,
+  uploadDataController,
+  uploadErrorController,
+  uploadCompleteController
+}

@@ -1,4 +1,9 @@
-import { uploadController, uploadDataController, uploadCompleteController, uploadErrorController } from "~/src/server/upload/controller.js";
+import {
+  uploadController,
+  uploadDataController,
+  uploadCompleteController,
+  uploadErrorController
+} from '~/src/server/upload/controller.js'
 
 /**
  * Sets up the routes used in the home page.
