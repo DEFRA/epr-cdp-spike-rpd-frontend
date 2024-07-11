@@ -2,7 +2,6 @@
 
 Spike to investigate the complexity of EPR deploying into CDP
 
-
 - [Requirements](#requirements)
   - [Node.js](#nodejs)
 - [Redis](#redis)

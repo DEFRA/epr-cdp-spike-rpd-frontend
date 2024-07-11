@@ -1,0 +1,33 @@
+{% extends 'layouts/page.njk' %}
+{% from "govuk/components/file-upload/macro.njk" import govukFileUpload %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+
+{% block content %}
+  {{ appHeading({
+    text: heading,
+    caption: "Upload your packaging data"
+  }) }}
+
+  {% call appPageBody() %}
+    <p>
+      Use this portal to upload your packaging data
+    </p>
+    <form action="/upload-data" method="post" novalidate enctype="multipart/form-data">
+        {{ govukFileUpload({
+          id: "file-upload",
+          name: "fileUpload",
+          label: {
+            text: "Upload a file"
+          },
+          errorMessage: {
+            text: "An error has occured, please try again"
+          }
+        }) }}
+        {{ govukButton({
+          text: "Click here to upload your packaging data"
+        }) }}
+    </form>
+
+  {% endcall %}
+
+{% endblock %}
