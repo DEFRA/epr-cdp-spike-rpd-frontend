@@ -15,12 +15,30 @@ describe('#uploadController', () => {
 
 describe('#uploadDataController', () => {
   const mockViewHandler = {
-    redirect: jest.fn()
+    redirect: jest.fn(),
+    payload: jest.fn()
+  }
+
+  const mockRequest = {
+    payload: {
+      fileUpload: {
+        hapi: {
+          filename: 'testfile.txt',
+          headers: {}
+        },
+        pipe: jest.fn(),
+        on: jest.fn((event, callback) => {
+          if (event === 'end') {
+            callback()
+          }
+        })
+      }
+    }
   }
 
   test('Should provide expected response', () => {
-    uploadDataController.handler(null, mockViewHandler)
-    expect(mockViewHandler.redirect).toHaveBeenCalledWith("home")
+    uploadDataController.handler(mockRequest, mockViewHandler)
+    expect(mockViewHandler.redirect).toHaveBeenCalledWith("/upload/complete")
   })
 })
 
