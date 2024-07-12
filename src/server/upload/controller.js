@@ -1,6 +1,8 @@
 /* eslint-disable no-console */
 import * as fs from 'fs'
 import path from 'path'
+import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
+
 const __dirname = path.resolve()
 
 /**
@@ -18,38 +20,20 @@ const uploadController = {
 
 const uploadDataController = {
   handler: (request, h) => {
+    const logger = createLogger()
     const fileUpload = request.payload.fileUpload
-    console.log('********************')
-    if (
-      fileUpload &&
-      fileUpload.hapi.filename &&
-      fileUpload.hapi.filename.length !== 0
-    ) {
-      console.log('Have File')
+    logger.debug('File upload started')
+    if (fileUpload?.hapi?.filename?.length !== 0) {
       const name = fileUpload.hapi.filename
       const path = __dirname + '/uploads/' + name
-      console.log('path:' + path)
       const file = fs.createWriteStream(path)
-
-      file.on('error', (err) => {
-        console.error(err)
-        return h.redirect('/upload/error')
-      })
-
+      logger.debug('File found: ' + name)
       fileUpload.pipe(file)
-
-      fileUpload.on('end', () => {
-        const ret = {
-          filename: fileUpload.hapi.filename,
-          headers: fileUpload.hapi.headers
-        }
-        return JSON.stringify(ret)
-      })
+      h.redirect('/upload/complete')
     } else {
-      console.log('No File')
-      return h.redirect('/upload/error')
+      logger.warn('No file selected')
+      h.redirect('/upload/error')
     }
-    return h.redirect('/upload/complete')
   }
 }
 

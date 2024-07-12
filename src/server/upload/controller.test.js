@@ -39,8 +39,24 @@ describe('#uploadDataController', () => {
     }
   }
 
-  test('Should provide expected response', () => {
-    uploadDataController.handler(mockRequest, mockViewHandler)
-    expect(mockViewHandler.redirect).toHaveBeenCalledWith('/upload/complete')
+  describe('expected responses', () => {
+    test('Should redirect to complete when successful', () => {
+      uploadDataController.handler(mockRequest, mockViewHandler)
+      expect(mockViewHandler.redirect).toHaveBeenCalledWith('/upload/complete')
+    })
+
+    test('Should redirect to error when no filename supplied', () => {
+      const noFileNameRequest = {
+        payload: {
+          fileUpload: {
+            hapi: { filename: '', headers: {} },
+            pipe: mockRequest.payload.fileUpload.pipe,
+            on: mockRequest.payload.fileUpload.on
+          }
+        }
+      }
+      uploadDataController.handler(noFileNameRequest, mockViewHandler)
+      expect(mockViewHandler.redirect).toHaveBeenCalledWith('/upload/error')
+    })
   })
 })
