@@ -43,10 +43,9 @@ describe('#uploadDataController', () => {
 
   describe('expected responses', () => {
     test('Should redirect to complete when successful', () => {
-      // const promise = uploadDataController.handler(mockRequest, mockViewHandler)
-      uploadDataController.handler(mockRequest, mockViewHandler)
+      const promise = uploadDataController.handler(mockRequest, mockViewHandler)
       expect(mockViewHandler.redirect).toHaveBeenCalledWith('/upload/complete')
-      // expect(promise).toBeDefined() : Fix me, I have left the bug in again!
+      expect(promise).toBeDefined()
     })
 
     test('Should redirect to error when no filename supplied', () => {
