@@ -35,10 +35,10 @@ const uploadDataController = {
       const file = fs.createWriteStream(filepath)
       logger.debug('File found: ' + name)
       fileUpload.pipe(file)
-      h.redirect('/upload/complete')
+      return h.redirect('/upload/complete')
     } else {
       logger.warn('No file selected')
-      h.redirect('/upload/error')
+      return h.redirect('/upload/error')
     }
   }
 }
