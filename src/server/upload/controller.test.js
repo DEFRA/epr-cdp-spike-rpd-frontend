@@ -18,7 +18,9 @@ describe('#uploadController', () => {
 
 describe('#uploadDataController', () => {
   const mockViewHandler = {
-    redirect: jest.fn(),
+    redirect: jest.fn(() => {
+      return new Promise(() => {})
+    }),
     payload: jest.fn()
   }
 
@@ -41,8 +43,9 @@ describe('#uploadDataController', () => {
 
   describe('expected responses', () => {
     test('Should redirect to complete when successful', () => {
-      uploadDataController.handler(mockRequest, mockViewHandler)
+      const promise = uploadDataController.handler(mockRequest, mockViewHandler)
       expect(mockViewHandler.redirect).toHaveBeenCalledWith('/upload/complete')
+      expect(promise).toBeDefined()
     })
 
     test('Should redirect to error when no filename supplied', () => {
