@@ -25,14 +25,20 @@ const uploadDataController = {
     logger.debug('File upload started')
     if (fileUpload?.hapi?.filename?.length !== 0) {
       const name = fileUpload.hapi.filename
-      const path = __dirname + '/uploads/' + name
-      const file = fs.createWriteStream(path)
+      const path = __dirname + '/uploads/'
+      const filepath = path + name
+      fs.mkdir(path, 0o744, (err) => {
+        if (err) {
+          if (err.code !== 'EEXIST') throw err
+        }
+      })
+      const file = fs.createWriteStream(filepath)
       logger.debug('File found: ' + name)
       fileUpload.pipe(file)
-      return h.redirect('/upload/complete')
+      h.redirect('/upload/complete')
     } else {
       logger.warn('No file selected')
-      return h.redirect('/upload/error')
+      h.redirect('/upload/error')
     }
   }
 }
