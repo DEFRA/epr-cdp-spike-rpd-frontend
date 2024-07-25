@@ -4,7 +4,7 @@ import { health } from '~/src/server/health/index.js'
 import { home } from '~/src/server/home/index.js'
 import { serveStaticFiles } from '~/src/server/common/helpers/serve-static-files.js'
 import { about } from '~/src/server/about/index.js'
-import { upload } from '~/src/server/upload/index.js'
+import { upload } from '~/src/server/uploads/upload/index.js'
 
 const router = {
   plugin: {

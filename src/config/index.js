@@ -147,6 +147,31 @@ const config = convict({
       default: process.env.NODE_ENV !== 'production',
       env: 'USE_SINGLE_INSTANCE_CACHE'
     }
+  },
+  rpd: {
+    awsRegion: {
+      doc: 'AWS region',
+      format: String,
+      default: 'eu-west-2',
+      env: 'AWS_REGION'
+    },
+    localstackEndpoint: {
+      doc: 'Localstack endpoint',
+      format: String,
+      default: 'http://localhost:4566'
+    },
+    bucket: {
+      doc: 'Bucket name',
+      format: String,
+      default: 'dev-epr-cdp-spike-rpd-local-frontend',
+      env: 'BUCKET'
+    },
+    cdpUploaderUrl: {
+      doc: 'CDP Uploader root url',
+      format: String,
+      default: 'http://localhost:7337',
+      env: 'CDP_UPLOADER_URL'
+    }
   }
 })
 
