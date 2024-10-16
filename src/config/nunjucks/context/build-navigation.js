@@ -11,9 +11,9 @@ function buildNavigation(request) {
       isActive: request.path === '/about'
     },
     {
-      text: 'Upload your packaging data',
-      url: '/upload',
-      isActive: request.path === '/upload'
+      text: 'Connectivity',
+      url: '/connectivity',
+      isActive: request.path === '/connectivity'
     }
   ]
 }

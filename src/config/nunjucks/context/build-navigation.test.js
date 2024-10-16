@@ -21,8 +21,8 @@ describe('#buildNavigation', () => {
       },
       {
         isActive: false,
-        text: 'Upload your packaging data',
-        url: '/upload'
+        text: 'Connectivity',
+        url: '/connectivity'
       }
     ])
   })
@@ -41,8 +41,8 @@ describe('#buildNavigation', () => {
       },
       {
         isActive: false,
-        text: 'Upload your packaging data',
-        url: '/upload'
+        text: 'Connectivity',
+        url: '/connectivity'
       }
     ])
   })

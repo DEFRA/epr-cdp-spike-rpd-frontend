@@ -1,0 +1,61 @@
+{% extends 'layouts/page.njk' %}
+
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/fieldset/macro.njk" import govukFieldset %}
+{% from "govuk/components/select/macro.njk" import govukSelect %}
+
+{% block content %}
+  {{ appHeading({
+    text: heading,
+    caption: "Check Connectivity to Azure"
+  }) }}
+
+  <form method="get" action="/connectivity/connections" autocomplete="off" novalidate>
+
+    {% call govukFieldset({
+      legend: {
+        text: "Select URL to test",
+        classes: "govuk-fieldset__legend--l",
+        isPageHeading: false
+      }
+    }) %}
+    {{ govukSelect({
+      id: "resource",
+      name: "resource",
+      label: {
+        text: "Connection URL"
+      },
+      items: urlList
+    }) }}
+      <div class="govuk-button-group">
+        {{ govukButton({
+          text: "Test Connection",
+          classes: "govuk-button--primary",
+          preventDoubleClick: true
+        }) }}
+      </div>
+  {% endcall %}
+</form>
+<br><br>
+  <form method="post" action="/connectivity/postconnections" autocomplete="off" novalidate>
+
+  {% call govukFieldset({
+    legend: {
+      text: "Test All URL Connections",
+      classes: "govuk-fieldset__legend--l",
+      isPageHeading: false
+    }
+  }) %}
+
+    <div class="govuk-button-group">
+      {{ govukButton({
+        text: "Test All",
+        classes: "govuk-button--secondary",
+        preventDoubleClick: true
+      }) }}
+    </div>
+  {% endcall %}
+  </form>
+
+{% endblock %}

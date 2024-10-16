@@ -1,0 +1,79 @@
+{% extends "layouts/page.njk" %}
+
+{% from "govuk/components/table/macro.njk" import govukTable %}
+
+{% block content %}
+
+{{ govukTable({
+  caption: "IPAFFS Notification (CHED) Information",
+  captionClasses: "govuk-table__caption--m",
+  rows: [
+    [
+      {
+        text: "Common Health Entry Document (CHED) Reference"
+      },
+      {
+        text: notification.id
+      }
+    ],
+   [
+     {
+       text: "Last Updated"
+     },
+     {
+       text: lastUpdated
+     }
+   ],
+    [
+      {
+        text: "Status"
+      },
+      {
+        text: notification.status
+      }
+    ],
+    [
+      {
+        text: "Country Of Origin"
+      },
+      {
+        text: notification.partOne
+      }
+    ],
+     [
+       {
+         text: "Item Number"
+       },
+       {
+         text: "TODO"
+       }
+     ],
+     [
+       {
+         text: "Last Updated By"
+       },
+       {
+         text: notification.lastUpdatedBy
+       }
+     ],
+     [
+       {
+         text: "Importer"
+       },
+       {
+         text: notification.importer
+       }
+     ],
+     [
+       {
+         text: "Consignor"
+       },
+       {
+         text: notification.consignor
+       }
+     ]
+  ]
+}) }}
+
+{% endblock %}
+

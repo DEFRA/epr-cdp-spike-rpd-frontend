@@ -1,0 +1,79 @@
+{% extends "layouts/page.njk" %}
+
+{% from "govuk/components/table/macro.njk" import govukTable %}
+
+{% block content %}
+
+{{ govukTable({
+  caption: "Connection result",
+  captionClasses: "govuk-table__caption--m",
+  rows: [
+    [
+      {
+        text: "Connection URL"
+      },
+      {
+        text: checkResult.url
+      }
+    ],
+   [
+     {
+       text: "Status Code"
+     },
+     {
+       text: checkResult.status+" : "+checkResult.statusText
+     }
+   ],
+    [
+      {
+        text: "Data"
+      },
+      {
+        text: checkResult.dataTrim
+      }
+    ],
+    [
+      {
+        text: "Error"
+      },
+      {
+        text: checkResult.errorMessage
+      }
+    ],
+     [
+       {
+         text: "Stack Trace"
+       },
+       {
+         text: checkResult.stack
+       }
+     ],
+     [
+       {
+         text: "Ping"
+       },
+       {
+         text: checkResult.pingout
+       }
+     ],
+     [
+       {
+         text: "Dig "
+       },
+       {
+         text: checkResult.digout
+       }
+     ],
+     [
+       {
+         text: "Traceroute"
+       },
+       {
+         text: checkResult.traceout
+       }
+     ]
+  ]
+}) }}
+
+{% endblock %}
+

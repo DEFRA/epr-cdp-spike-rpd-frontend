@@ -21,6 +21,49 @@ const config = convict({
     default: 3000,
     env: 'PORT'
   },
+  urlList: [
+    {
+      text: 'tstdmpinfdl1001.blob.core.windows.net',
+      value: 'tstdmpinfdl1001.blob.core.windows.net'
+    },
+    {
+      text: 'tstdmpinfdl1001.privatelink.blob.core.windows.net',
+      value: 'tstdmpinfdl1001.privatelink.blob.core.windows.net'
+    },
+    {
+      text: 'tstdmpinfdl1001 10.205.135.135',
+      value: '10.205.135.135'
+    },
+    {
+      text: 'devdmpinfdl1001.blob.core.windows.net',
+      value: 'devdmpinfdl1001.blob.core.windows.net'
+    },
+    {
+      text: 'devdmpinfdl1001.privatelink.blob.core.windows.net',
+      value: 'devdmpinfdl1001.privatelink.blob.core.windows.net'
+    },
+    {
+      text: 'devdmpinfdl1001 10.205.131.199',
+      value: '10.205.131.199'
+    },
+    {
+      text: 'snddmpinfdl1001.blob.core.windows.net',
+      value: 'snddmpinfdl1001.blob.core.windows.net'
+    },
+    {
+      text: 'snddmpinfdl1001.privatelink.blob.core.windows.net',
+      value: 'snddmpinfdl1001.privatelink.blob.core.windows.net'
+    },
+    {
+      text: 'snddmpinfdl1001 10.205.59.135',
+      value: '10.205.59.135'
+    },
+    {
+      text: 'www.google.co.uk',
+      value: 'www.google.co.uk',
+      selected: true
+    }
+  ],
   staticCacheTimeout: {
     doc: 'Static cache timeout in milliseconds',
     format: Number,
