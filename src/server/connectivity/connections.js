@@ -2,6 +2,8 @@ import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import axios from 'axios'
 import util from 'node:util'
 import childprocess from 'node:child_process'
+import dig from 'node-dig-dns'
+import traceroute from 'traceroute'
 const exec = util.promisify(childprocess.exec)
 
 const makeConnectionController = {
@@ -32,24 +34,24 @@ const makeConnectionController = {
     try {
       pingresult = await execRun(`ping -c 1 ${baseurl}`)
       logger.info(`ping: ${JSON.stringify(pingresult)}`)
-      digresult = await execRun(`dig ${baseurl}`)
+      digresult = await digRun(`${baseurl}`)
       logger.info(`dig: ${JSON.stringify(digresult)}`)
-      traceresult = await execRun(`traceroute ${baseurl}`)
+      traceresult = await execRun(`tracepath ${baseurl}`)
       logger.info(`traceroute: ${JSON.stringify(traceresult)}`)
-       const checkResponse = await axios.get(url, {
-      // headers: {
-      //   Authorization: `Bearer ${authedUser.jwt}`
-      // }
-       })
-       logger.info(`${checkResponse.status} : ${checkResponse.statusText}`)
+      const checkResponse = await axios.get(url, {
+        // headers: {
+        //   Authorization: `Bearer ${authedUser.jwt}`
+        // }
+      })
+      logger.info(`${checkResponse.status} : ${checkResponse.statusText}`)
       results.push({
         url,
         status: checkResponse.status,
         statusText: checkResponse.statusText,
         dataTrim: `${checkResponse.data.substring(0, 100)}...`,
         pingout: pingresult,
-        digout: digresult,
-        traceout: traceresult
+        digout: JSON.stringify(digresult),
+        traceout: JSON.stringify(traceresult)
       })
       logger.info(`PingOut: ${results[0].pingout}`)
     } catch (error) {
@@ -61,12 +63,10 @@ const makeConnectionController = {
         status: error.code,
         statusText: error.status,
         pingout: pingresult,
-        digout: digresult,
+        digout: JSON.stringify(digresult),
         traceout: traceresult
       })
     }
-
-
 
     return h.view('connectivity/connections', {
       pageTitle: `Connection result`,
@@ -95,8 +95,42 @@ export { makeConnectionController }
 
 const execRun = (cmd) => {
   return new Promise((resolve, reject) => {
+    const logger = createLogger()
     exec(cmd, (error, stdout, stderr) => {
-        resolve(stdout);
+      logger.info(`std error: ${error}`)
+      logger.info(`std stdout: ${stdout}`)
+      logger.info(`std stderr: ${stderr}`)
+      resolve(stdout)
+    })
+  })
+}
+
+const digRun = (baseUrl) => {
+  return new Promise((resolve, reject) => {
+    const logger = createLogger()
+    dig([baseUrl, 'ANY'])
+      .then((result) => {
+        logger.info(`digRun result: ${result}`)
+        return resolve(result)
+      })
+      .catch((err) => {
+        logger.info(`digRun Error: ${err}`)
+        return resolve(err)
+      })
+  })
+}
+
+const tracerouteRun = (baseUrl) => {
+  return new Promise((resolve, reject) => {
+    const logger = createLogger()
+    traceroute.trace(baseUrl, function (err, hops) {
+      if (!err) {
+        logger.info(`tracerouteRun Hops: ${hops}`)
+        resolve(hops)
+      } else {
+        logger.info(`tracerouteRun Run: ${err}`)
+        resolve(err)
+      }
     })
   })
 }
