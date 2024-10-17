@@ -62,6 +62,22 @@ const config = convict({
       text: 'www.google.co.uk',
       value: 'www.google.co.uk',
       selected: true
+    },
+    {
+      text: 'fcpaipocuksoai.privatelink.openai.azure.com',
+      value: 'fcpaipocuksoai.privatelink.openai.azure.com'
+    },
+    {
+      text: '10.205.37.245 fcpaipocuksoai.privatelink.openai.azure.com',
+      value: '10.205.37.245'
+    },
+    {
+      text: 'fcpaipocuksss.search.windows.net',
+      value: 'fcpaipocuksss.search.windows.net'
+    },
+    {
+      text: '10.205.37.246 fcpaipocuksss.search.windows.net',
+      value: '10.205.37.246'
     }
   ],
   staticCacheTimeout: {

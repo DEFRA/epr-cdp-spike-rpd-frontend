@@ -17,7 +17,10 @@ const makeConnectionController = {
 
     const url = `https://${requested.query.resource}`
     const baseurl = `${requested.query.resource}`
-    const tracepathEnabled = requested.query.tracepathEnabled
+    const enabled = requested.query.enabled ?? []
+    const pingEnabled = enabled.includes('ping')
+    const digEnabled = enabled.includes('dig')
+    const tracepathEnabled = enabled.includes('tracepath')
 
     // const backendApi = config.get('tdmBackendApi')
     // const authedUser = await request.getUserSession()
@@ -32,9 +35,9 @@ const makeConnectionController = {
     let traceresult
 
     try {
-      pingresult = await execRun(`ping -c 1 ${baseurl}`)
+      pingresult = pingEnabled ? await execRun(`ping -c 1 ${baseurl}`) : ''
       logger.info(`ping: ${JSON.stringify(pingresult)}`)
-      digresult = await digRun(`${baseurl}`)
+      digresult = digEnabled ? await digRun(`${baseurl}`) : { answer: [''] }
       logger.info(`dig: ${JSON.stringify(digresult)}`)
       traceresult = tracepathEnabled
         ? await execRun(`tracepath ${baseurl}`)
@@ -44,6 +47,7 @@ const makeConnectionController = {
         // headers: {
         //   Authorization: `Bearer ${authedUser.jwt}`
         // }
+        timeout: 2000
       })
       logger.info(`${checkResponse.status} : ${checkResponse.statusText}`)
       results.push({
