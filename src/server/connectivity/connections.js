@@ -44,7 +44,7 @@ const makeConnectionController = {
 
     try {
       curlResult = curlEnabled
-        ? await execRun(`curl -m 5 -L -v ${hostsToAdd} ${baseurl}`, true)
+        ? await execRun(`curl -m 5 -L -v ${hostsToAdd} ${url}`, true)
         : ''
       logger.info(`curlResult: ${JSON.stringify(curlResult)}`)
       pingresult = pingEnabled ? await execRun(`ping -c 1 ${baseurl}`) : ''
