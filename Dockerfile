@@ -6,7 +6,8 @@ FROM defradigital/node-development:${PARENT_VERSION} AS development
 
 USER root
 RUN apk add iputils-tracepath && \
-    apk add bind-tools
+    apk add bind-tools && \
+    apk add curl
 USER node
 
 ENV TZ="Europe/London"

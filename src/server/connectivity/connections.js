@@ -21,6 +21,7 @@ const makeConnectionController = {
     const pingEnabled = enabled.includes('ping')
     const digEnabled = enabled.includes('dig')
     const tracepathEnabled = enabled.includes('tracepath')
+    const curlEnabled = enabled.includes('curl')
 
     // const backendApi = config.get('tdmBackendApi')
     // const authedUser = await request.getUserSession()
@@ -33,8 +34,19 @@ const makeConnectionController = {
     let pingresult
     let digresult
     let traceresult
+    let curlResult
+
+    const hostsToAdd =
+      ' --resolve fcpaipocuksss.search.windows.net:443:10.205.37.246' +
+      ' --resolve fcpaipocuksoai.privatelink.openai.azure.com:443:10.205.37.245' +
+      ' --resolve devdmpinfdl1001.blob.core.windows.net:443:10.205.131.199' +
+      ' --resolve devdmpinfdl1001.privatelink.blob.core.windows.net:443:10.205.131.199'
 
     try {
+      curlResult = curlEnabled
+        ? await execRun(`curl -m 5 -L -v ${hostsToAdd} ${baseurl}`, true)
+        : ''
+      logger.info(`curlResult: ${JSON.stringify(curlResult)}`)
       pingresult = pingEnabled ? await execRun(`ping -c 1 ${baseurl}`) : ''
       logger.info(`ping: ${JSON.stringify(pingresult)}`)
       digresult = digEnabled ? await digRun(`${baseurl}`) : { answer: [''] }
@@ -57,7 +69,8 @@ const makeConnectionController = {
         dataTrim: `${checkResponse.data.substring(0, 100)}...`,
         pingout: formatResult(pingresult),
         digout: formatDig(digresult),
-        traceout: formatResult(traceresult)
+        traceout: formatResult(traceresult),
+        curlResult: formatResult(curlResult)
       })
       logger.info(`PingOut: ${results[0].pingout}`)
     } catch (error) {
@@ -70,7 +83,8 @@ const makeConnectionController = {
         statusText: error.status,
         pingout: pingresult,
         digout: JSON.stringify(digresult),
-        traceout: traceresult
+        traceout: traceresult,
+        curlResult: formatResult(curlResult)
       })
     }
 
@@ -99,14 +113,14 @@ const makeConnectionController = {
 
 export { makeConnectionController }
 
-const execRun = (cmd) => {
+const execRun = (cmd, logError) => {
   return new Promise((resolve, reject) => {
     const logger = createLogger()
     exec(cmd, (error, stdout, stderr) => {
       logger.info(`std error: ${error}`)
       logger.info(`std stdout: ${stdout}`)
       logger.info(`std stderr: ${stderr}`)
-      resolve(stdout)
+      logError ? resolve(stderr) : resolve(stdout)
     })
   })
 }
