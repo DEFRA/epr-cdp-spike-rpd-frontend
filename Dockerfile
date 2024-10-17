@@ -4,6 +4,11 @@ ARG PORT_DEBUG=9229
 
 FROM defradigital/node-development:${PARENT_VERSION} AS development
 
+USER root
+RUN apk add iputils-tracepath && \
+    apk add bind-tools
+USER node
+
 ENV TZ="Europe/London"
 
 ARG PARENT_VERSION
@@ -15,6 +20,7 @@ ENV PORT ${PORT}
 EXPOSE ${PORT} ${PORT_DEBUG}
 
 COPY --chown=node:node package*.json ./
+
 RUN npm install
 COPY --chown=node:node . .
 RUN npm run build
@@ -35,7 +41,9 @@ ENV TZ="Europe/London"
 # CDP PLATFORM HEALTHCHECK REQUIREMENT
 USER root
 RUN apk update && \
-    apk add curl
+    apk add curl && \
+    apk add iputils-tracepath && \
+    apk add bind-tools
 USER node
 
 ARG PARENT_VERSION
