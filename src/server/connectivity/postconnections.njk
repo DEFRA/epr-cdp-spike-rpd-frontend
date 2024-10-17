@@ -5,71 +5,71 @@
 {% block content %}
 
 {{ govukTable({
-  caption: "IPAFFS Notification (CHED) Information",
+  caption: "Connection result (NOT IMPLEMENT YET)",
   captionClasses: "govuk-table__caption--m",
   rows: [
     [
       {
-        text: "Common Health Entry Document (CHED) Reference"
+        text: "Connection URL"
       },
       {
-        text: notification.id
+        text: checkResult.url
       }
     ],
    [
      {
-       text: "Last Updated"
+       text: "Status Code"
      },
      {
-       text: lastUpdated
+       text: checkResult.status+" : "+checkResult.statusText
      }
    ],
     [
       {
-        text: "Status"
+        text: "Data"
       },
       {
-        text: notification.status
+        text: checkResult.dataTrim
       }
     ],
     [
       {
-        text: "Country Of Origin"
+        text: "Error"
       },
       {
-        text: notification.partOne
+        text: checkResult.errorMessage
       }
     ],
      [
        {
-         text: "Item Number"
+         text: "Stack Trace"
        },
        {
-         text: "TODO"
+         html: checkResult.stack
        }
      ],
      [
        {
-         text: "Last Updated By"
+         text: "Ping"
        },
        {
-         text: notification.lastUpdatedBy
+         html: checkResult.pingout
        }
      ],
      [
        {
-         text: "Importer"
+         text: "Dig "
        },
        {
-         text: notification.importer
+         html: checkResult.digout
        }
      ],
      [
        {
-         text: "Consignor"
+         text: "Traceroute"
        },
        {
-         text: notification.consignor
+         html: checkResult.traceout
        }
      ]
   ]

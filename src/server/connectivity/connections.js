@@ -3,7 +3,6 @@ import axios from 'axios'
 import util from 'node:util'
 import childprocess from 'node:child_process'
 import dig from 'node-dig-dns'
-import traceroute from 'traceroute'
 const exec = util.promisify(childprocess.exec)
 
 const makeConnectionController = {
@@ -18,6 +17,7 @@ const makeConnectionController = {
 
     const url = `https://${requested.query.resource}`
     const baseurl = `${requested.query.resource}`
+    const tracepathEnabled = requested.query.tracepathEnabled
 
     // const backendApi = config.get('tdmBackendApi')
     // const authedUser = await request.getUserSession()
@@ -36,7 +36,9 @@ const makeConnectionController = {
       logger.info(`ping: ${JSON.stringify(pingresult)}`)
       digresult = await digRun(`${baseurl}`)
       logger.info(`dig: ${JSON.stringify(digresult)}`)
-      traceresult = await execRun(`tracepath ${baseurl}`)
+      traceresult = tracepathEnabled
+        ? await execRun(`tracepath ${baseurl}`)
+        : ''
       logger.info(`traceroute: ${JSON.stringify(traceresult)}`)
       const checkResponse = await axios.get(url, {
         // headers: {
@@ -49,9 +51,9 @@ const makeConnectionController = {
         status: checkResponse.status,
         statusText: checkResponse.statusText,
         dataTrim: `${checkResponse.data.substring(0, 100)}...`,
-        pingout: pingresult,
-        digout: JSON.stringify(digresult),
-        traceout: JSON.stringify(traceresult)
+        pingout: formatResult(pingresult),
+        digout: formatDig(digresult),
+        traceout: formatResult(traceresult)
       })
       logger.info(`PingOut: ${results[0].pingout}`)
     } catch (error) {
@@ -120,17 +122,12 @@ const digRun = (baseUrl) => {
   })
 }
 
-const tracerouteRun = (baseUrl) => {
-  return new Promise((resolve, reject) => {
-    const logger = createLogger()
-    traceroute.trace(baseUrl, function (err, hops) {
-      if (!err) {
-        logger.info(`tracerouteRun Hops: ${hops}`)
-        resolve(hops)
-      } else {
-        logger.info(`tracerouteRun Run: ${err}`)
-        resolve(err)
-      }
-    })
-  })
+const formatResult = (intext) => {
+  return intext.replace(/\n/g, '<br>')
+}
+
+const formatDig = (digResult) => {
+  return digResult.answer
+    .map((e) => `${e.domain} ${e.type} ${e.ttl} ${e.class} ${e.value}`)
+    .join('<br>')
 }

@@ -64,6 +64,8 @@ services:
       REDIS_HOST: redis
       LOCALSTACK_ENDPOINT: http://localstack:4566
       USE_SINGLE_INSTANCE_CACHE: true
+    extra_hosts:
+      - "devdmpinfdl1001.blob.core.windows.net:10.205.131.199"
     networks:
       - cdp-tenant
 

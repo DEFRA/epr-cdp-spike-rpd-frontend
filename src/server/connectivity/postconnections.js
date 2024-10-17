@@ -1,6 +1,4 @@
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
-import { config } from '~/src/config/index.js'
-import axios from 'axios'
 
 const makePostConnectionController = {
   handler: async (request, h) => {

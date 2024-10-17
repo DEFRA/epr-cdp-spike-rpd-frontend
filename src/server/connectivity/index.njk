@@ -12,6 +12,27 @@
   }) }}
 
   <form method="get" action="/connectivity/connections" autocomplete="off" novalidate>
+  {% from "govuk/components/checkboxes/macro.njk" import govukCheckboxes %}
+
+{{ govukCheckboxes({
+  name: "tracepathEnabled",
+  fieldset: {
+    legend: {
+      text: "Include tracepath (slow)",
+      isPageHeading: true,
+      classes: "govuk-fieldset__legend--l"
+    }
+  },
+  hint: {
+    text: "Tracepath is slow, turn on only if needed"
+  },
+  items: [
+    {
+      value: "true",
+      text: "Include Tracepath in results"
+    }
+  ]
+}) }}
 
     {% call govukFieldset({
       legend: {
