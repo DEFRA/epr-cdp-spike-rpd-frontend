@@ -15,21 +15,33 @@
   {% from "govuk/components/checkboxes/macro.njk" import govukCheckboxes %}
 
 {{ govukCheckboxes({
-  name: "tracepathEnabled",
+  name: "enabled",
   fieldset: {
     legend: {
-      text: "Include tracepath (slow)",
+      text: "Include checks?",
       isPageHeading: true,
       classes: "govuk-fieldset__legend--l"
     }
   },
   hint: {
-    text: "Tracepath is slow, turn on only if needed"
+    text: "Select all to run"
   },
   items: [
     {
-      value: "true",
-      text: "Include Tracepath in results"
+      value: "ping",
+      text: "Ping Test"
+    },
+    {
+      value: "dig",
+      text: "Dig"
+    },
+    {
+      value: "tracepath",
+      text: "Tracepath"
+    },
+    {
+      value: "curl",
+      text: "Curl"
     }
   ]
 }) }}
