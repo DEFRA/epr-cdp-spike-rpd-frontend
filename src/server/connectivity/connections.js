@@ -1,8 +1,10 @@
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
-import axios from 'axios'
+// import axios from 'axios'
 import util from 'node:util'
 import childprocess from 'node:child_process'
 import dig from 'node-dig-dns'
+import { proxyFetch } from '../common/helpers/proxy-fetch.js'
+
 const exec = util.promisify(childprocess.exec)
 
 const makeConnectionController = {
@@ -22,6 +24,10 @@ const makeConnectionController = {
     const digEnabled = enabled.includes('dig')
     const tracepathEnabled = enabled.includes('tracepath')
     const curlEnabled = enabled.includes('curl')
+    const ignoreCert = enabled.includes('ignoreCert') ? ' -k ' : ''
+    const proxyCommand = enabled.includes('bypassProxy')
+      ? ''
+      : ' -x $CDP_HTTPS_PROXY '
 
     // const backendApi = config.get('tdmBackendApi')
     // const authedUser = await request.getUserSession()
@@ -44,9 +50,12 @@ const makeConnectionController = {
 
     try {
       curlResult = curlEnabled
-        ? await execRun(`curl -m 5 -L -v ${hostsToAdd} ${url}`, true)
+        ? await execRun(
+            `curl ${proxyCommand} -m 5 -L -v ${hostsToAdd} ${url} ${ignoreCert}`,
+            true
+          )
         : ''
-      logger.info(`curlResult: ${JSON.stringify(curlResult)}`)
+      logger.info(`curlResult: ${formatResult(curlResult)}`)
       pingresult = pingEnabled ? await execRun(`ping -c 1 ${baseurl}`) : ''
       logger.info(`ping: ${JSON.stringify(pingresult)}`)
       digresult = digEnabled ? await digRun(`${baseurl}`) : { answer: [''] }
@@ -55,18 +64,24 @@ const makeConnectionController = {
         ? await execRun(`tracepath ${baseurl}`)
         : ''
       logger.info(`traceroute: ${JSON.stringify(traceresult)}`)
-      const checkResponse = await axios.get(url, {
-        // headers: {
-        //   Authorization: `Bearer ${authedUser.jwt}`
-        // }
-        timeout: 2000
-      })
-      logger.info(`${checkResponse.status} : ${checkResponse.statusText}`)
+      // const checkResponse = await axios.get(url, {
+      //   // headers: {
+      //   //   Authorization: `Bearer ${authedUser.jwt}`
+      //   // }
+      //   timeout: 2000
+      // })
+      logger.info('Running checkResponse')
+      const checkResponse = await proxyFetch(url, { timeout: 2000 })
+
+      logger.info(
+        `Status Response : ${checkResponse.status} : ${checkResponse.statusText}`
+      )
+      const responseText = await checkResponse.text()
       results.push({
         url,
         status: checkResponse.status,
         statusText: checkResponse.statusText,
-        dataTrim: `${checkResponse.data.substring(0, 100)}...`,
+        dataTrim: `${responseText.substring(0, 100)}...`,
         pingout: formatResult(pingresult),
         digout: formatDig(digresult),
         traceout: formatResult(traceresult),
@@ -95,10 +110,6 @@ const makeConnectionController = {
         {
           text: 'Home',
           href: '/'
-        },
-        {
-          text: 'About',
-          href: `/about`
         },
         {
           text: 'Connectivity',
@@ -141,7 +152,9 @@ const digRun = (baseUrl) => {
 }
 
 const formatResult = (intext) => {
-  return intext.replace(/\n/g, '<br>')
+  return intext
+    .replace(/\n/g, '<br>')
+    .replace(/HTTPS_PROXY.*@/g, 'HTTPS_PROXY == ************@')
 }
 
 const formatDig = (digResult) => {
