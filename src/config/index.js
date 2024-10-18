@@ -23,62 +23,80 @@ const config = convict({
   },
   urlList: [
     {
-      text: 'tstdmpinfdl1001.blob.core.windows.net',
-      value: 'tstdmpinfdl1001.blob.core.windows.net'
-    },
-    {
-      text: 'tstdmpinfdl1001.privatelink.blob.core.windows.net',
-      value: 'tstdmpinfdl1001.privatelink.blob.core.windows.net'
-    },
-    {
-      text: 'tstdmpinfdl1001 10.205.135.135',
-      value: '10.205.135.135'
+      text: 'snddmpinfdl1001.blob.core.windows.net',
+      url: 'snddmpinfdl1001.blob.core.windows.net',
+      AZURE_CLIENT_ID: 'c1d14b98-8baf-486b-99c0-f30ac3ee5464',
+      AZURE_TENANT_ID: 'c9d74090-b4e6-4b04-981d-e6757a160812',
+      value: 0
     },
     {
       text: 'devdmpinfdl1001.blob.core.windows.net',
-      value: 'devdmpinfdl1001.blob.core.windows.net'
+      url: 'devdmpinfdl1001.blob.core.windows.net',
+      AZURE_CLIENT_ID: 'c1d14b98-8baf-486b-99c0-f30ac3ee5464',
+      AZURE_TENANT_ID: 'c9d74090-b4e6-4b04-981d-e6757a160812',
+      value: 1,
+      DmpBlobContainer: 'dmp-data-1001',
+      DMP_BLOB_STORAGE_NAME: 'devdmpinfdl1001'
     },
     {
       text: 'devdmpinfdl1001.privatelink.blob.core.windows.net',
-      value: 'devdmpinfdl1001.privatelink.blob.core.windows.net'
+      url: 'devdmpinfdl1001.privatelink.blob.core.windows.net',
+      AZURE_CLIENT_ID: 'c1d14b98-8baf-486b-99c0-f30ac3ee5464',
+      AZURE_TENANT_ID: 'c9d74090-b4e6-4b04-981d-e6757a160812',
+      value: 2
     },
     {
       text: 'devdmpinfdl1001 10.205.131.199',
-      value: '10.205.131.199'
-    },
-    {
-      text: 'snddmpinfdl1001.blob.core.windows.net',
-      value: 'snddmpinfdl1001.blob.core.windows.net'
-    },
-    {
-      text: 'snddmpinfdl1001.privatelink.blob.core.windows.net',
-      value: 'snddmpinfdl1001.privatelink.blob.core.windows.net'
-    },
-    {
-      text: 'snddmpinfdl1001 10.205.59.135',
-      value: '10.205.59.135'
+      url: '10.205.131.199',
+      value: 3
     },
     {
       text: 'www.google.co.uk',
-      value: 'www.google.co.uk',
-      selected: true
+      url: 'www.google.co.uk',
+      selected: true,
+      value: 4
     },
     {
       text: 'fcpaipocuksoai.privatelink.openai.azure.com',
-      value: 'fcpaipocuksoai.privatelink.openai.azure.com'
+      url: 'fcpaipocuksoai.privatelink.openai.azure.com',
+      value: 5
     },
     {
       text: '10.205.37.245 fcpaipocuksoai.privatelink.openai.azure.com',
-      value: '10.205.37.245'
+      url: '10.205.37.245',
+      value: 6
     },
     {
       text: 'fcpaipocuksss.search.windows.net',
-      value: 'fcpaipocuksss.search.windows.net'
+      url: 'fcpaipocuksss.search.windows.net',
+      value: 7
     },
     {
       text: '10.205.37.246 fcpaipocuksss.search.windows.net',
-      value: '10.205.37.246'
+      url: '10.205.37.246',
+      value: 8
     }
+
+    // {
+    //   text: 'snddmpinfdl1001.privatelink.blob.core.windows.net',
+    //   url: 'snddmpinfdl1001.privatelink.blob.core.windows.net',
+    // },
+    // {
+    //   text: 'snddmpinfdl1001 10.205.59.135',
+    //   url: '10.205.59.135'
+    // },
+    // {
+    //   text: 'tstdmpinfdl1001.blob.core.windows.net',
+    //   url: 'tstdmpinfdl1001.blob.core.windows.net'
+    // },
+    // {
+    //   text: 'tstdmpinfdl1001.privatelink.blob.core.windows.net',
+    //   url: 'tstdmpinfdl1001.privatelink.blob.core.windows.net'
+    // },
+    // {
+    //   text: 'tstdmpinfdl1001 10.205.135.135',
+    //   url: '10.205.135.135'
+    // },
   ],
   staticCacheTimeout: {
     doc: 'Static cache timeout in milliseconds',

@@ -18,7 +18,13 @@ const connectivityController = {
           text: 'Connectivity'
         }
       ],
-      urlList: config.get('urlList')
+      urlList: config.get('urlList').map((e) => {
+        return {
+          text: e.text,
+          value: e.value,
+          selected: e.selected
+        }
+      })
     })
   }
 }
