@@ -36,9 +36,9 @@ const makeConnectionController = {
     const tracepathEnabled = enabled.includes('tracepath')
     const curlEnabled = enabled.includes('curl')
     const ignoreCert = enabled.includes('ignoreCert') ? ' -k ' : ''
-    const proxyCommand = enabled.includes('bypassProxy')
-      ? ''
-      : ' -x $CDP_HTTPS_PROXY '
+    const proxyCommand = process.env.CDP_HTTPS_PROXY
+      ? ' -x $CDP_HTTPS_PROXY '
+      : ''
 
     // auth junk
     const useHeaders = !!urlItem[0].DMP_BLOB_STORAGE_NAME
@@ -60,6 +60,8 @@ const makeConnectionController = {
 
     const string_to_sign = `${request_method}\n\n\n\n\n\n\n\n\n\n\n\n${canonicalized_headers}\n${canonicalized_resource}\ncomp:list\nrestype:container`
 
+    logger.info(`Signing this [${string_to_sign}]`)
+
     const secret = process.env.AZURE_CLIENT_SECRET ?? 'SECRETSQUIRREL'
 
     logger.info(
@@ -67,7 +69,7 @@ const makeConnectionController = {
     )
 
     const signature = crypto
-      .createHmac('SHA256', secret)
+      .createHmac('SHA256', Buffer.from(secret, 'base64'))
       .update(string_to_sign)
       .digest('base64')
 
@@ -82,6 +84,18 @@ const makeConnectionController = {
 
     const fullUrl = url + pathToContainer + requestParams
 
+    const extraHeaders = useHeaders
+      ? `-H "${x_ms_date_h}" -H "${x_ms_version_h}" -H "${authorization_header}"`
+      : ''
+
+    const hostsToAdd =
+      ' --resolve fcpaipocuksss.search.windows.net:443:10.205.37.246' +
+      ' --resolve fcpaipocuksoai.privatelink.openai.azure.com:443:10.205.37.245' +
+      ' --resolve devdmpinfdl1001.blob.core.windows.net:443:10.205.131.199' +
+      ' --resolve devdmpinfdl1001.privatelink.blob.core.windows.net:443:10.205.131.199'
+
+    const curlCommand = `curl ${proxyCommand} -m 5 -L ${extraHeaders} -v ${hostsToAdd} "${fullUrl}" ${ignoreCert}`
+
     logger.info(`Making call to ${fullUrl}`)
 
     const results = []
@@ -91,18 +105,7 @@ const makeConnectionController = {
     let traceresult
     let curlResult
 
-    const hostsToAdd =
-      ' --resolve fcpaipocuksss.search.windows.net:443:10.205.37.246' +
-      ' --resolve fcpaipocuksoai.privatelink.openai.azure.com:443:10.205.37.245' +
-      ' --resolve devdmpinfdl1001.blob.core.windows.net:443:10.205.131.199' +
-      ' --resolve devdmpinfdl1001.privatelink.blob.core.windows.net:443:10.205.131.199'
-
     try {
-      const extraHeaders = useHeaders
-        ? `-H "${x_ms_date_h}" -H "${x_ms_version_h}" -H "${authorization_header}"`
-        : ''
-
-      const curlCommand = `curl ${proxyCommand} -m 5 -L ${extraHeaders} -v ${hostsToAdd} "${fullUrl}" ${ignoreCert}`
       logger.info(`Curl command [${curlCommand}]`)
       curlResult = curlEnabled ? await execRun(curlCommand) : ''
       logger.info(`curlResult Error: ${formatResult(curlResult.stderr)}`)
@@ -117,8 +120,8 @@ const makeConnectionController = {
       traceresult = tracepathEnabled
         ? await execRun(`tracepath ${baseurl}`)
         : ''
-      logger.info(`traceroute: ${JSON.stringify(traceresult.stderr)}`)
-      logger.info(`traceroute: ${JSON.stringify(traceresult.stdout)}`)
+      logger.info(`tracepath stdError: ${JSON.stringify(traceresult.stderr)}`)
+      logger.info(`tracepath stdOut: ${JSON.stringify(traceresult.stdout)}`)
 
       logger.info('Running proxyFetch')
       const proxyFetchHeaders = {
