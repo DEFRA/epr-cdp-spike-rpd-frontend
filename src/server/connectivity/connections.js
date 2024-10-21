@@ -56,9 +56,15 @@ const makeConnectionController = {
       ? `/${storage_account}/${container_name}`
       : ''
 
+    const requestParams = container_name ? `?comp=list&restype=container` : ''
+
     const string_to_sign = `${request_method}\n\n\n\n\n\n\n\n\n\n\n\n${canonicalized_headers}\n${canonicalized_resource}\ncomp:list\nrestype:container`
 
     const secret = process.env.AZURE_CLIENT_SECRET ?? 'SECRETSQUIRREL'
+
+    logger.info(
+      `Secret is Using ${secret === 'SECRETSQUIRREL' ? 'SECRETSQUIRREL' : 'REALKEY'}`
+    )
 
     const signature = crypto
       .createHmac('SHA256', secret)
@@ -72,7 +78,9 @@ const makeConnectionController = {
     logger.info(`Auth Header: ${authorization_header}`)
     // auth junk end
 
-    const fullUrl = url + canonicalized_resource
+    const pathToContainer = container_name ? `/${container_name}` : ''
+
+    const fullUrl = url + pathToContainer + requestParams
 
     logger.info(`Making call to ${fullUrl}`)
 
@@ -93,11 +101,10 @@ const makeConnectionController = {
       const extraHeaders = useHeaders
         ? `-H "${x_ms_date_h}" -H "${x_ms_version_h}" -H "${authorization_header}"`
         : ''
-      curlResult = curlEnabled
-        ? await execRun(
-            `curl ${proxyCommand} -m 5 -L ${extraHeaders} -v ${hostsToAdd} ${fullUrl} ${ignoreCert}`
-          )
-        : ''
+
+      const curlCommand = `curl ${proxyCommand} -m 5 -L ${extraHeaders} -v ${hostsToAdd} "${fullUrl}" ${ignoreCert}`
+      logger.info(`Curl command [${curlCommand}]`)
+      curlResult = curlEnabled ? await execRun(curlCommand) : ''
       logger.info(`curlResult Error: ${formatResult(curlResult.stderr)}`)
       logger.info(`curlResult StdOut: ${formatResult(curlResult.stdout)}`)
 
