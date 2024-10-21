@@ -13,7 +13,7 @@
         text: "Connection URL"
       },
       {
-        text: checkResult.url
+        text: checkResult.fullUrl
       }
     ],
    [
@@ -74,10 +74,18 @@
      ],
      [
        {
+         text: "Curl Result StdError"
+       },
+       {
+         html: checkResult.curlResultError
+       }
+     ],
+     [
+       {
          text: "Curl Result"
        },
        {
-         html: checkResult.curlResult
+         text: checkResult.curlResult.substring(0,300) + "...[snip]"
        }
      ]
   ]
