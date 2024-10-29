@@ -57,8 +57,8 @@ const config = convict({
       value: 4
     },
     {
-      text: 'fcpaipocuksoai.privatelink.openai.azure.com',
-      url: 'fcpaipocuksoai.privatelink.openai.azure.com',
+      text: 'fcpaipocuksoai.openai.azure.com',
+      url: 'fcpaipocuksoai.openai.azure.com',
       value: 5
     },
     {
@@ -75,28 +75,12 @@ const config = convict({
       text: '10.205.37.246 fcpaipocuksss.search.windows.net',
       url: '10.205.37.246',
       value: 8
+    },
+    {
+      text: 'tstdmpinfdl1001.blob.core.windows.net',
+      url: 'tstdmpinfdl1001.blob.core.windows.net',
+      value: 9
     }
-
-    // {
-    //   text: 'snddmpinfdl1001.privatelink.blob.core.windows.net',
-    //   url: 'snddmpinfdl1001.privatelink.blob.core.windows.net',
-    // },
-    // {
-    //   text: 'snddmpinfdl1001 10.205.59.135',
-    //   url: '10.205.59.135'
-    // },
-    // {
-    //   text: 'tstdmpinfdl1001.blob.core.windows.net',
-    //   url: 'tstdmpinfdl1001.blob.core.windows.net'
-    // },
-    // {
-    //   text: 'tstdmpinfdl1001.privatelink.blob.core.windows.net',
-    //   url: 'tstdmpinfdl1001.privatelink.blob.core.windows.net'
-    // },
-    // {
-    //   text: 'tstdmpinfdl1001 10.205.135.135',
-    //   url: '10.205.135.135'
-    // },
   ],
   staticCacheTimeout: {
     doc: 'Static cache timeout in milliseconds',
