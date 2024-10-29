@@ -57,6 +57,11 @@ const config = convict({
       value: 4
     },
     {
+      text: '142.250.200.3 www.google.co.uk',
+      url: '142.250.200.3',
+      value: 40
+    },
+    {
       text: 'fcpaipocuksoai.openai.azure.com',
       url: 'fcpaipocuksoai.openai.azure.com',
       value: 5

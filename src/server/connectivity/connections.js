@@ -98,7 +98,7 @@ const makeConnectionController = {
 
     logger.info(`Making call to ${fullUrl}`)
 
-    const results = []
+    let results = {}
 
     let pingresult
     let digresult
@@ -107,11 +107,11 @@ const makeConnectionController = {
 
     try {
       logger.info(`Curl command [${curlCommand}]`)
-      curlResult = curlEnabled ? await execRun(curlCommand) : ''
+      curlResult = curlEnabled ? await execRun(curlCommand) : {}
       logger.info(`curlResult Error: ${formatResult(curlResult.stderr)}`)
       logger.info(`curlResult StdOut: ${formatResult(curlResult.stdout)}`)
 
-      pingresult = pingEnabled ? await execRun(`ping -c 1 ${baseurl}`) : ''
+      pingresult = pingEnabled ? await execRun(`ping -c 1 ${baseurl}`) : {}
       logger.info(`ping: ${JSON.stringify(pingresult.stderr)}`)
       logger.info(`ping: ${JSON.stringify(pingresult.stdout)}`)
 
@@ -143,7 +143,7 @@ const makeConnectionController = {
         `Status Response : ${checkResponse.status} : ${checkResponse.statusText}`
       )
       const responseText = await checkResponse.text()
-      results.push({
+      results = {
         fullUrl,
         status: checkResponse.status,
         statusText: checkResponse.statusText,
@@ -155,22 +155,28 @@ const makeConnectionController = {
         traceoutError: formatResult(traceresult.stderr),
         curlResult: formatResult(curlResult.stdout),
         curlResultError: formatResult(curlResult.stderr)
-      })
+      }
       logger.info(`PingOut: ${results[0].pingout}`)
     } catch (error) {
       logger.info(error)
-      results.push({
-        url,
+      results = {
+        fullUrl,
+        status: error.code ?? 'None',
+        statusText: error.status ?? 'Error',
+        dataTrim: `[none]`,
+        pingout: formatResult(pingresult.stdout),
+        pingoutError: formatResult(pingresult.stderr),
         errorMessage: error.message,
         stack: error.stack,
-        status: error.code,
-        statusText: error.status,
-        pingout: pingresult,
         digout: JSON.stringify(digresult),
         traceout: traceresult,
-        curlResult: formatResult(curlResult)
-      })
+        traceoutError: formatResult(traceresult.stderr),
+        curlResult: formatResult(curlResult.stdout),
+        curlResultError: formatResult(curlResult.stderr)
+      }
     }
+
+    logger.info(`result: ${JSON.stringify(results)}`)
 
     return h.view('connectivity/connections', {
       pageTitle: `Connection result`,
@@ -185,7 +191,7 @@ const makeConnectionController = {
           href: `/connectivity`
         }
       ],
-      checkResult: results[0],
+      checkResult: results,
       lastUpdated: 'Today'
     })
   }
@@ -221,7 +227,7 @@ const digRun = (baseUrl) => {
 }
 
 const formatResult = (intext) => {
-  return intext instanceof String
+  return intext
     ? intext
         .replace(/\n/g, '<br>')
         .replace(/HTTPS_PROXY.*@/g, 'HTTPS_PROXY == ************@')
