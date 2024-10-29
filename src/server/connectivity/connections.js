@@ -221,7 +221,7 @@ const digRun = (baseUrl) => {
 }
 
 const formatResult = (intext) => {
-  return intext
+  return intext instanceof String
     ? intext
         .replace(/\n/g, '<br>')
         .replace(/HTTPS_PROXY.*@/g, 'HTTPS_PROXY == ************@')
