@@ -56,6 +56,14 @@
          html: checkResult.pingout
        }
      ],
+          [
+       {
+         text: "Ping Error"
+       },
+       {
+         html: checkResult.pingoutError
+       }
+     ],
      [
        {
          text: "Dig "
@@ -66,10 +74,18 @@
      ],
      [
        {
-         text: "Traceroute"
+         text: "Tracepath"
        },
        {
          html: checkResult.traceout
+       }
+     ],
+          [
+       {
+         text: "Tracepath Error"
+       },
+       {
+         html: checkResult.traceoutError
        }
      ],
      [
