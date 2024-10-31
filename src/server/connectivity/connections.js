@@ -45,10 +45,10 @@ const makeConnectionController = {
       ? generateBlobStorageConfig(urlItem[0], logger)
       : {}
 
-    const extraHeaders = blobStorageConfig.extraHeaders ?? ''
+    const curlHeaders = blobStorageConfig.extraHeaders ?? ''
     const fullUrl = url + (blobStorageConfig.queryPath ?? '')
 
-    const curlCommand = `curl ${proxyCommand} -v -m 5 -L ${extraHeaders} "${fullUrl}"`
+    const curlCommand = `curl ${proxyCommand} -v -m 5 -L ${curlHeaders} "${fullUrl}"`
 
     logger.info(`Making call to ${fullUrl}`)
 
@@ -78,14 +78,15 @@ const makeConnectionController = {
       logger.info(`tracepath stdOut: ${JSON.stringify(traceresult.stdout)}`)
 
       logger.info('Running proxyFetch')
+      const headerObject = new Headers([
+        ['x-ms-date', blobStorageConfig.headerDate],
+        ['x-ms-version', blobStorageConfig.storage_service_version],
+        ['Authorization', blobStorageConfig.authorization_header]
+      ])
       const proxyFetchOpts = blobStorageConfig.extraHeaders
         ? {
             timeout: 2000,
-            headers: {
-              'x-ms-date': blobStorageConfig.headerDate,
-              'x-ms-version': blobStorageConfig.storage_service_version,
-              Authorization: blobStorageConfig.authorization_header
-            }
+            headers: headerObject
           }
         : { timeout: 2000 }
       const checkResponse = fetchEnabled
@@ -100,7 +101,7 @@ const makeConnectionController = {
         fullUrl,
         status: checkResponse.status,
         statusText: checkResponse.statusText,
-        dataTrim: `${responseText.substring(0, 100)}...`,
+        dataTrim: `${responseText}`,
         pingout: formatResult(pingresult.stdout),
         pingoutError: formatResult(pingresult.stderr),
         digout: formatDig(digresult),
@@ -153,11 +154,7 @@ export { makeConnectionController }
 
 const execRun = (cmd) => {
   return new Promise((resolve, reject) => {
-    const logger = createLogger()
-    exec(cmd, (error, stdout, stderr) => {
-      logger.info(`std error: ${error}`)
-      logger.info(`std stdout: ${stdout}`)
-      logger.info(`std stderr: ${stderr}`)
+    exec(cmd, (_error, stdout, stderr) => {
       resolve({ stderr, stdout })
     })
   })
@@ -165,14 +162,11 @@ const execRun = (cmd) => {
 
 const digRun = (baseUrl) => {
   return new Promise((resolve, reject) => {
-    const logger = createLogger()
     dig([baseUrl, 'ANY'])
       .then((result) => {
-        logger.info(`digRun result: ${result}`)
         return resolve(result)
       })
       .catch((err) => {
-        logger.info(`digRun Error: ${err}`)
         return resolve(err)
       })
   })
@@ -187,12 +181,24 @@ const formatResult = (intext) => {
 }
 
 const formatDig = (digResult) => {
+  // return encodeHTML(JSON.stringify(digResult, null))
   return digResult?.answer
     ? digResult.answer
-        .map((e) => `${e.domain} ${e.type} ${e.ttl} ${e.class} ${e.value}`)
+        .map((e) =>
+          encodeHTML(`${e.domain} ${e.type} ${e.ttl} ${e.class} ${e.value}`)
+        )
         .join('<br>')
     : ''
 }
+
+const encodeHTML = (originalStr) =>
+  originalStr
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+    .replace(/\n/g, '<br>')
 
 const generateBlobStorageConfig = (urlEntry, logger) => {
   const request_method = 'GET'
