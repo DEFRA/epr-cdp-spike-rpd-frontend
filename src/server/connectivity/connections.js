@@ -36,6 +36,7 @@ const makeConnectionController = {
     const digEnabled = enabled.includes('dig')
     const tracepathEnabled = enabled.includes('tracepath')
     const curlEnabled = enabled.includes('curl')
+    const nslookupEnabled = enabled.includes('nslookup')
     const proxyCommand = process.env.CDP_HTTPS_PROXY
       ? ' -x $CDP_HTTPS_PROXY '
       : ''
@@ -58,6 +59,7 @@ const makeConnectionController = {
     let digresult
     let traceresult
     let curlResult
+    let nslookupResult
 
     try {
       logger.info(`Curl command [${curlCommand}]`)
@@ -71,6 +73,17 @@ const makeConnectionController = {
 
       digresult = digEnabled ? await digRun(`${baseurl}`) : {}
       logger.info(`dig: ${JSON.stringify(digresult)}`)
+
+      nslookupResult = nslookupEnabled
+        ? await execRun(`nslookup ${baseurl}`)
+        : ''
+      logger.info(
+        `nslookupResult stdError: ${JSON.stringify(nslookupResult.stderr)}`
+      )
+      logger.info(
+        `nslookupResult stdOut: ${JSON.stringify(nslookupResult.stdout)}`
+      )
+
       traceresult = tracepathEnabled
         ? await execRun(`tracepath ${baseurl}`)
         : ''
@@ -108,7 +121,9 @@ const makeConnectionController = {
         traceout: formatResult(traceresult.stdout),
         traceoutError: formatResult(traceresult.stderr),
         curlResult: formatResult(curlResult.stdout),
-        curlResultError: formatResult(curlResult.stderr)
+        curlResultError: formatResult(curlResult.stderr),
+        nslookup: formatResult(nslookupResult.stdout),
+        nslookupError: formatResult(nslookupResult.stderr)
       }
     } catch (error) {
       logger.info(error)
@@ -125,7 +140,9 @@ const makeConnectionController = {
         traceout: traceresult,
         traceoutError: formatResult(traceresult.stderr),
         curlResult: formatResult(curlResult.stdout),
-        curlResultError: formatResult(curlResult.stderr)
+        curlResultError: formatResult(curlResult.stderr),
+        nslookup: formatResult(nslookupResult.stderr),
+        nslookupError: formatResult(nslookupResult.stderr)
       }
     }
 
@@ -174,7 +191,7 @@ const digRun = (baseUrl) => {
 
 const formatResult = (intext) => {
   return intext
-    ? intext
+    ? encodeHTML(intext)
         .replace(/\n/g, '<br>')
         .replace(/HTTPS_PROXY.*@/g, 'HTTPS_PROXY == ************@')
     : ''
