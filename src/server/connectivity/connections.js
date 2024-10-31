@@ -32,69 +32,23 @@ const makeConnectionController = {
     logger.info(`url: ${JSON.stringify(url)}`)
     const enabled = requested.query.enabled ?? []
     const pingEnabled = enabled.includes('ping')
+    const fetchEnabled = enabled.includes('fetch')
     const digEnabled = enabled.includes('dig')
     const tracepathEnabled = enabled.includes('tracepath')
     const curlEnabled = enabled.includes('curl')
-    const ignoreCert = enabled.includes('ignoreCert') ? ' -k ' : ''
     const proxyCommand = process.env.CDP_HTTPS_PROXY
       ? ' -x $CDP_HTTPS_PROXY '
       : ''
+    const isBlobStorage = !!urlItem[0].DMP_BLOB_STORAGE_NAME
 
-    // auth junk
-    const useHeaders = !!urlItem[0].DMP_BLOB_STORAGE_NAME
-    const request_method = 'GET'
-    const nowDate = new Date().toUTCString()
-    const x_ms_date_h = `x-ms-date:${nowDate}`
-    const storage_service_version = '2019-12-12'
-    const x_ms_version_h = `x-ms-version:${storage_service_version}`
-    const canonicalized_headers = `${x_ms_date_h}\n${x_ms_version_h}`
+    const blobStorageConfig = isBlobStorage
+      ? generateBlobStorageConfig(urlItem[0], logger)
+      : {}
 
-    const storage_account = urlItem[0].DMP_BLOB_STORAGE_NAME
-    const container_name = urlItem[0].DmpBlobContainer
+    const extraHeaders = blobStorageConfig.extraHeaders ?? ''
+    const fullUrl = url + (blobStorageConfig.queryPath ?? '')
 
-    const canonicalized_resource = container_name
-      ? `/${storage_account}/${container_name}`
-      : ''
-
-    const requestParams = container_name ? `?comp=list&restype=container` : ''
-
-    const string_to_sign = `${request_method}\n\n\n\n\n\n\n\n\n\n\n\n${canonicalized_headers}\n${canonicalized_resource}\ncomp:list\nrestype:container`
-
-    logger.info(`Signing this [${string_to_sign}]`)
-
-    const secret = process.env.AZURE_CLIENT_SECRET ?? 'SECRETSQUIRREL'
-
-    logger.info(
-      `Secret is Using ${secret === 'SECRETSQUIRREL' ? 'SECRETSQUIRREL' : 'REALKEY'}`
-    )
-
-    const signature = crypto
-      .createHmac('SHA256', Buffer.from(secret, 'base64'))
-      .update(string_to_sign)
-      .digest('base64')
-
-    logger.info(`Signature: ${signature}`)
-    const authorization = `SharedKey`
-    const authorization_header = `Authorization: ${authorization} ${storage_account}:${signature}`
-
-    logger.info(`Auth Header: ${authorization_header}`)
-    // auth junk end
-
-    const pathToContainer = container_name ? `/${container_name}` : ''
-
-    const fullUrl = url + pathToContainer + requestParams
-
-    const extraHeaders = useHeaders
-      ? `-H "${x_ms_date_h}" -H "${x_ms_version_h}" -H "${authorization_header}"`
-      : ''
-
-    const hostsToAdd =
-      ' --resolve fcpaipocuksss.search.windows.net:443:10.205.37.246' +
-      ' --resolve fcpaipocuksoai.privatelink.openai.azure.com:443:10.205.37.245' +
-      ' --resolve devdmpinfdl1001.blob.core.windows.net:443:10.205.131.199' +
-      ' --resolve devdmpinfdl1001.privatelink.blob.core.windows.net:443:10.205.131.199'
-
-    const curlCommand = `curl ${proxyCommand} -m 5 -L ${extraHeaders} -v ${hostsToAdd} "${fullUrl}" ${ignoreCert}`
+    const curlCommand = `curl ${proxyCommand} -v -m 5 -L ${extraHeaders} "${fullUrl}"`
 
     logger.info(`Making call to ${fullUrl}`)
 
@@ -124,20 +78,19 @@ const makeConnectionController = {
       logger.info(`tracepath stdOut: ${JSON.stringify(traceresult.stdout)}`)
 
       logger.info('Running proxyFetch')
-      const proxyFetchHeaders = {
-        'x-ms-date': nowDate,
-        'x-ms-version': storage_service_version,
-        Authorization: authorization_header
-      }
-      const checkResponse = await proxyFetch(
-        fullUrl,
-        useHeaders
-          ? {
-              timeout: 2000,
-              headers: proxyFetchHeaders
+      const proxyFetchOpts = blobStorageConfig.extraHeaders
+        ? {
+            timeout: 2000,
+            headers: {
+              'x-ms-date': blobStorageConfig.headerDate,
+              'x-ms-version': blobStorageConfig.storage_service_version,
+              Authorization: blobStorageConfig.authorization_header
             }
-          : { timeout: 2000 }
-      )
+          }
+        : { timeout: 2000 }
+      const checkResponse = fetchEnabled
+        ? await proxyFetch(fullUrl, proxyFetchOpts)
+        : { status: 0, statusText: '[Skipped]', text: () => '' }
 
       logger.info(
         `Status Response : ${checkResponse.status} : ${checkResponse.statusText}`
@@ -156,7 +109,6 @@ const makeConnectionController = {
         curlResult: formatResult(curlResult.stdout),
         curlResultError: formatResult(curlResult.stderr)
       }
-      logger.info(`PingOut: ${results[0].pingout}`)
     } catch (error) {
       logger.info(error)
       results = {
@@ -240,4 +192,48 @@ const formatDig = (digResult) => {
         .map((e) => `${e.domain} ${e.type} ${e.ttl} ${e.class} ${e.value}`)
         .join('<br>')
     : ''
+}
+
+const generateBlobStorageConfig = (urlEntry, logger) => {
+  const request_method = 'GET'
+  const nowDate = new Date().toUTCString()
+  const x_ms_date_h = `x-ms-date:${nowDate}`
+  const storage_service_version = '2019-12-12'
+  const x_ms_version_h = `x-ms-version:${storage_service_version}`
+
+  const storage_account = urlEntry.DMP_BLOB_STORAGE_NAME
+  const container_name = urlEntry.DmpBlobContainer
+
+  const string_to_sign = `${request_method}\n\n\n\n\n\n\n\n\n\n\n\n${x_ms_date_h}\n${x_ms_version_h}\n/${storage_account}/${container_name}\ncomp:list\nrestype:container`
+
+  logger.info(`Signing this [${string_to_sign}]`)
+
+  const secret = process.env.AZURE_CLIENT_SECRET ?? 'SECRETSQUIRREL'
+
+  logger.info(
+    `Secret is Using ${secret === 'SECRETSQUIRREL' ? 'SECRETSQUIRREL' : 'REALKEY'}`
+  )
+
+  const signature = crypto
+    .createHmac('SHA256', Buffer.from(secret, 'base64'))
+    .update(string_to_sign)
+    .digest('base64')
+
+  logger.info(`Signature: ${signature}`)
+  const authorization = `SharedKey`
+  const authorization_header = `Authorization: ${authorization} ${storage_account}:${signature}`
+
+  logger.info(`Auth Header: ${authorization_header}`)
+
+  const queryPath = `/${container_name}?comp=list&restype=container`
+  const extraHeaders = `-H "${x_ms_date_h}" -H "${x_ms_version_h}" -H "${authorization_header}"`
+  return {
+    extraHeaders,
+    queryPath,
+    headerDate: nowDate,
+    storage_service_version,
+    authorization_header,
+    x_ms_date_h,
+    x_ms_version_h
+  }
 }

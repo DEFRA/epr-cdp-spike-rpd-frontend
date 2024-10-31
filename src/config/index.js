@@ -27,6 +27,8 @@ const config = convict({
       url: 'snddmpinfdl1001.blob.core.windows.net',
       AZURE_CLIENT_ID: 'c1d14b98-8baf-486b-99c0-f30ac3ee5464',
       AZURE_TENANT_ID: 'c9d74090-b4e6-4b04-981d-e6757a160812',
+      DmpBlobContainer: 'dmp-data-1001',
+      DMP_BLOB_STORAGE_NAME: 'snddmpinfdl1001',
       value: 0
     },
     {
@@ -39,52 +41,32 @@ const config = convict({
       DMP_BLOB_STORAGE_NAME: 'devdmpinfdl1001'
     },
     {
-      text: 'devdmpinfdl1001.privatelink.blob.core.windows.net',
-      url: 'devdmpinfdl1001.privatelink.blob.core.windows.net',
-      AZURE_CLIENT_ID: 'c1d14b98-8baf-486b-99c0-f30ac3ee5464',
-      AZURE_TENANT_ID: 'c9d74090-b4e6-4b04-981d-e6757a160812',
+      text: 'tstdmpinfdl1001.blob.core.windows.net',
+      url: 'tstdmpinfdl1001.blob.core.windows.net',
+      DmpBlobContainer: 'dmp-data-1001',
+      DMP_BLOB_STORAGE_NAME: 'tstdmpinfdl1001',
       value: 2
-    },
-    {
-      text: 'devdmpinfdl1001 10.205.131.199',
-      url: '10.205.131.199',
-      value: 3
     },
     {
       text: 'www.google.co.uk',
       url: 'www.google.co.uk',
       selected: true,
-      value: 4
-    },
-    {
-      text: '142.250.200.3 www.google.co.uk',
-      url: '142.250.200.3',
-      value: 40
+      value: 3
     },
     {
       text: 'fcpaipocuksoai.openai.azure.com',
       url: 'fcpaipocuksoai.openai.azure.com',
-      value: 5
-    },
-    {
-      text: '10.205.37.245 fcpaipocuksoai.privatelink.openai.azure.com',
-      url: '10.205.37.245',
-      value: 6
+      value: 4
     },
     {
       text: 'fcpaipocuksss.search.windows.net',
       url: 'fcpaipocuksss.search.windows.net',
-      value: 7
+      value: 5
     },
     {
       text: '10.205.37.246 fcpaipocuksss.search.windows.net',
       url: '10.205.37.246',
-      value: 8
-    },
-    {
-      text: 'tstdmpinfdl1001.blob.core.windows.net',
-      url: 'tstdmpinfdl1001.blob.core.windows.net',
-      value: 9
+      value: 6
     }
   ],
   staticCacheTimeout: {
