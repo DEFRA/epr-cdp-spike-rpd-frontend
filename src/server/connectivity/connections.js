@@ -42,7 +42,6 @@ const makeConnectionController = {
     const curlEnabled = enabled.includes('curl')
     const nslookupEnabled = enabled.includes('nslookup')
 
-
     const proxyCommand = process.env.CDP_HTTPS_PROXY
       ? ' -x $CDP_HTTPS_PROXY '
       : ''
