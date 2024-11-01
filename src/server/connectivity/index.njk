@@ -50,6 +50,18 @@
   ]
 }) }}
 
+{% from "govuk/components/input/macro.njk" import govukInput %}
+
+{{ govukInput({
+  label: {
+    text: "Where?",
+    classes: "govuk-label--l",
+    isPageHeading: false
+  },
+  id: "where",
+  name: "where"
+}) }}
+
     {% call govukFieldset({
       legend: {
         text: "Select URL to test",
