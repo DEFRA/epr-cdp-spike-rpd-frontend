@@ -24,7 +24,11 @@ const makeConnectionController = {
     logger.info(`Resource: ${resource}`)
     const urlList = config.get('urlList')
     logger.info(`urlList: ${JSON.stringify(urlList)}`)
-    const urlItem = urlList.filter((e) => `${e.value}` === resource)
+    const where = requested.query.where
+    const urlItem =
+      where && where.length > 0
+        ? [{ text: where, url: where, value: 99 }]
+        : urlList.filter((e) => `${e.value}` === resource)
     logger.info(`urlItem: ${JSON.stringify(urlItem)}`)
     const baseurl = urlItem[0].url
     logger.info(`url: ${JSON.stringify(baseurl)}`)
@@ -37,6 +41,7 @@ const makeConnectionController = {
     const tracepathEnabled = enabled.includes('tracepath')
     const curlEnabled = enabled.includes('curl')
     const nslookupEnabled = enabled.includes('nslookup')
+
     const proxyCommand = process.env.CDP_HTTPS_PROXY
       ? ' -x $CDP_HTTPS_PROXY '
       : ''

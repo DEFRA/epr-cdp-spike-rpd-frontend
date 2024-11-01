@@ -67,6 +67,11 @@ const config = convict({
       text: '10.205.37.246 fcpaipocuksss.search.windows.net',
       url: '10.205.37.246',
       value: 6
+    },
+    {
+      text: 'devffcdbssq1002.postgres.database.azure.com',
+      url: 'devffcdbssq1002.postgres.database.azure.com',
+      value: 7
     }
   ],
   staticCacheTimeout: {
