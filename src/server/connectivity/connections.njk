@@ -26,10 +26,10 @@
    ],
     [
       {
-        text: "Data"
+        text: "Fetch Result"
       },
       {
-        text: checkResult.dataTrim
+        html: checkResult.fetchResultData.substring(0,300) + "...[snip]"
       }
     ],
     [
@@ -101,7 +101,7 @@
          text: "Curl Result"
        },
        {
-         text: checkResult.curlResult.substring(0,300) + "...[snip]"
+         html: checkResult.curlResult.substring(0,300) + "...[snip]"
        }
      ]
   ]

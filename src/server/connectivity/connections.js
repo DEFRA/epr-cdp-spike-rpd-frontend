@@ -19,9 +19,7 @@ const makeConnectionController = {
       form: request.form
     }
     logger.info(`Get received request: ${JSON.stringify(requested)}`)
-
     const resource = requested.query.resource
-    logger.info(`Resource: ${resource}`)
     const urlList = config.get('urlList')
     logger.info(`urlList: ${JSON.stringify(urlList)}`)
     const where = requested.query.where
@@ -31,9 +29,7 @@ const makeConnectionController = {
         : urlList.filter((e) => `${e.value}` === resource)
     logger.info(`urlItem: ${JSON.stringify(urlItem)}`)
     const baseurl = urlItem[0].url
-    logger.info(`url: ${JSON.stringify(baseurl)}`)
     const url = `https://${baseurl}`
-    logger.info(`url: ${JSON.stringify(url)}`)
     const enabled = requested.query.enabled ?? []
     const pingEnabled = enabled.includes('ping')
     const fetchEnabled = enabled.includes('fetch')
@@ -42,7 +38,7 @@ const makeConnectionController = {
     const curlEnabled = enabled.includes('curl')
     const nslookupEnabled = enabled.includes('nslookup')
 
-    const proxyCommand = process.env.CDP_HTTPS_PROXY
+    const curlProxyCommand = process.env.CDP_HTTPS_PROXY
       ? ' -x $CDP_HTTPS_PROXY '
       : ''
     const isBlobStorage = !!urlItem[0].DMP_BLOB_STORAGE_NAME
@@ -54,72 +50,89 @@ const makeConnectionController = {
     const curlHeaders = blobStorageConfig.extraHeaders ?? ''
     const fullUrl = url + (blobStorageConfig.queryPath ?? '')
 
-    const curlCommand = `curl ${proxyCommand} -v -m 5 -L ${curlHeaders} "${fullUrl}"`
+    const curlCommand = `curl ${curlProxyCommand} -v -m 5 -L ${curlHeaders} "${fullUrl}"`
 
-    logger.info(`Making call to ${fullUrl}`)
+    logger.info(`Starting checks ${fullUrl}`)
 
     let results = {}
 
-    let pingresult
-    let digresult
-    let traceresult
-    let curlResult
-    let nslookupResult
+    let pingresult = {}
+    let digresult = {}
+    let traceresult = ''
+    let curlResult = {}
+    let nslookupResult = ''
+    let checkResponse = {
+      status: 0,
+      statusText: '[Skipped]',
+      text: Promise.resolve
+    }
+    let responseText
 
     try {
-      logger.info(`Curl command [${curlCommand}]`)
-      curlResult = curlEnabled ? await execRun(curlCommand) : {}
-      logger.info(`curlResult Error: ${formatResult(curlResult.stderr)}`)
-      logger.info(`curlResult StdOut: ${formatResult(curlResult.stdout)}`)
+      if (curlEnabled) {
+        logger.info(`Curl command [${curlCommand}]`)
+        curlResult = await execRun(curlCommand)
+        logger.info(`curlResult Error: ${formatResult(curlResult.stderr)}`)
+        logger.info(`curlResult StdOut: ${formatResult(curlResult.stdout)}`)
+      }
 
-      pingresult = pingEnabled ? await execRun(`ping -c 1 ${baseurl}`) : {}
-      logger.info(`ping: ${JSON.stringify(pingresult.stderr)}`)
-      logger.info(`ping: ${JSON.stringify(pingresult.stdout)}`)
+      if (pingEnabled) {
+        pingresult = await execRun(`ping -c 1 ${baseurl}`)
+        logger.info(`ping: ${JSON.stringify(pingresult.stderr)}`)
+        logger.info(`ping: ${JSON.stringify(pingresult.stdout)}`)
+      }
 
-      digresult = digEnabled ? await digRun(`${baseurl}`) : {}
-      logger.info(`dig: ${JSON.stringify(digresult)}`)
+      if (digEnabled) {
+        digresult = await digRun(`${baseurl}`)
+        logger.info(`dig: ${JSON.stringify(digresult)}`)
+      }
 
-      nslookupResult = nslookupEnabled
-        ? await execRun(`nslookup ${baseurl}`)
-        : ''
-      logger.info(
-        `nslookupResult stdError: ${JSON.stringify(nslookupResult.stderr)}`
-      )
-      logger.info(
-        `nslookupResult stdOut: ${JSON.stringify(nslookupResult.stdout)}`
-      )
+      if (nslookupEnabled) {
+        nslookupResult = await execRun(`nslookup ${baseurl}`)
+        logger.info(
+          `nslookupResult stdError: ${JSON.stringify(nslookupResult.stderr)}`
+        )
+        logger.info(
+          `nslookupResult stdOut: ${JSON.stringify(nslookupResult.stdout)}`
+        )
+      }
 
-      traceresult = tracepathEnabled
-        ? await execRun(`tracepath ${baseurl}`)
-        : ''
-      logger.info(`tracepath stdError: ${JSON.stringify(traceresult.stderr)}`)
-      logger.info(`tracepath stdOut: ${JSON.stringify(traceresult.stdout)}`)
+      // This no longer has a UI element, but the code is still here (you can technically send a param to trigger it enabled=tracepath)
+      // It's hidden as it takes a long time to tracepath and the page often times out.  Results will be in the log though
+      if (tracepathEnabled) {
+        traceresult = await execRun(`tracepath ${baseurl}`)
+        logger.info(`tracepath stdError: ${JSON.stringify(traceresult.stderr)}`)
+        logger.info(`tracepath stdOut: ${JSON.stringify(traceresult.stdout)}`)
+      }
 
-      logger.info('Running proxyFetch')
-      const headerObject = new Headers([
-        ['x-ms-date', blobStorageConfig.headerDate],
-        ['x-ms-version', blobStorageConfig.storage_service_version],
-        ['Authorization', blobStorageConfig.authorization_header]
-      ])
-      const proxyFetchOpts = blobStorageConfig.extraHeaders
-        ? {
-            timeout: 2000,
-            headers: headerObject
-          }
-        : { timeout: 2000 }
-      const checkResponse = fetchEnabled
-        ? await proxyFetch(fullUrl, proxyFetchOpts)
-        : { status: 0, statusText: '[Skipped]', text: () => '' }
+      if (fetchEnabled) {
+        logger.info('Running proxyFetch')
+        const headerObject = new Headers([
+          ['x-ms-date', blobStorageConfig.headerDate],
+          ['x-ms-version', blobStorageConfig.storage_service_version],
+          ['Authorization', blobStorageConfig.authorization_header]
+        ])
+        const proxyFetchOpts = blobStorageConfig.extraHeaders
+          ? {
+              timeout: 2000,
+              headers: headerObject
+            }
+          : { timeout: 2000 }
+        checkResponse = fetchEnabled
+          ? await proxyFetch(fullUrl, proxyFetchOpts)
+          : { status: 0, statusText: '[Skipped]', text: () => '' }
 
-      logger.info(
-        `Status Response : ${checkResponse.status} : ${checkResponse.statusText}`
-      )
-      const responseText = await checkResponse.text()
+        logger.info(
+          `Status Response : ${checkResponse.status} : ${checkResponse.statusText}`
+        )
+        responseText = await checkResponse.text()
+      }
+
       results = {
         fullUrl,
         status: checkResponse.status,
         statusText: checkResponse.statusText,
-        dataTrim: `${responseText}`,
+        fetchResultData: formatResult(responseText),
         pingout: formatResult(pingresult.stdout),
         pingoutError: formatResult(pingresult.stderr),
         digout: formatDig(digresult),
@@ -136,7 +149,7 @@ const makeConnectionController = {
         fullUrl,
         status: error.code ?? 'None',
         statusText: error.status ?? 'Error',
-        dataTrim: `[none]`,
+        fetchResultData: `[none]`,
         pingout: formatResult(pingresult.stdout),
         pingoutError: formatResult(pingresult.stderr),
         errorMessage: error.message,
@@ -234,8 +247,6 @@ const generateBlobStorageConfig = (urlEntry, logger) => {
 
   const string_to_sign = `${request_method}\n\n\n\n\n\n\n\n\n\n\n\n${x_ms_date_h}\n${x_ms_version_h}\n/${storage_account}/${container_name}\ncomp:list\nrestype:container`
 
-  logger.info(`Signing this [${string_to_sign}]`)
-
   const secret = process.env.AZURE_CLIENT_SECRET ?? 'SECRETSQUIRREL'
 
   logger.info(
@@ -247,11 +258,8 @@ const generateBlobStorageConfig = (urlEntry, logger) => {
     .update(string_to_sign)
     .digest('base64')
 
-  logger.info(`Signature: ${signature}`)
   const authorization = `SharedKey`
   const authorization_header = `Authorization: ${authorization} ${storage_account}:${signature}`
-
-  logger.info(`Auth Header: ${authorization_header}`)
 
   const queryPath = `/${container_name}?comp=list&restype=container`
   const extraHeaders = `-H "${x_ms_date_h}" -H "${x_ms_version_h}" -H "${authorization_header}"`
