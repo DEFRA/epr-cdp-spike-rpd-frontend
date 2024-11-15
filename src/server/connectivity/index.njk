@@ -86,25 +86,5 @@
       </div>
   {% endcall %}
 </form>
-<br><br>
-  <form method="post" action="/connectivity/postconnections" autocomplete="off" novalidate>
-
-  {% call govukFieldset({
-    legend: {
-      text: "Test All URL Connections",
-      classes: "govuk-fieldset__legend--l",
-      isPageHeading: false
-    }
-  }) %}
-
-    <div class="govuk-button-group">
-      {{ govukButton({
-        text: "Test All",
-        classes: "govuk-button--secondary",
-        preventDoubleClick: true
-      }) }}
-    </div>
-  {% endcall %}
-  </form>
-
+<br>
 {% endblock %}

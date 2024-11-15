@@ -8,6 +8,20 @@ const oneHour = 1000 * 60 * 60
 const fourHours = oneHour * 4
 const oneWeekMillis = oneHour * 24 * 7
 
+const buildURLList = () => {
+  const finalList = []
+  Object.entries(process.env).forEach(([key, value]) => {
+    if (key.startsWith('urlList_') && value) {
+      const parts = key.split('_')
+      const currentObj = finalList[parseInt(parts[1])] || {}
+      currentObj[parts[2]] = value
+      currentObj.value = parseInt(parts[1])
+      finalList[parseInt(parts[1])] = currentObj
+    }
+  })
+  return finalList
+}
+
 const config = convict({
   env: {
     doc: 'The application environment.',
@@ -21,59 +35,7 @@ const config = convict({
     default: 3000,
     env: 'PORT'
   },
-  urlList: [
-    {
-      text: 'snddmpinfdl1001.blob.core.windows.net',
-      url: 'snddmpinfdl1001.blob.core.windows.net',
-      AZURE_CLIENT_ID: 'c1d14b98-8baf-486b-99c0-f30ac3ee5464',
-      AZURE_TENANT_ID: 'c9d74090-b4e6-4b04-981d-e6757a160812',
-      DmpBlobContainer: 'dmp-data-1001',
-      DMP_BLOB_STORAGE_NAME: 'snddmpinfdl1001',
-      value: 0
-    },
-    {
-      text: 'devdmpinfdl1001.blob.core.windows.net',
-      url: 'devdmpinfdl1001.blob.core.windows.net',
-      AZURE_CLIENT_ID: 'c1d14b98-8baf-486b-99c0-f30ac3ee5464',
-      AZURE_TENANT_ID: 'c9d74090-b4e6-4b04-981d-e6757a160812',
-      value: 1,
-      DmpBlobContainer: 'dmp-data-1001',
-      DMP_BLOB_STORAGE_NAME: 'devdmpinfdl1001'
-    },
-    {
-      text: 'tstdmpinfdl1001.blob.core.windows.net',
-      url: 'tstdmpinfdl1001.blob.core.windows.net',
-      DmpBlobContainer: 'dmp-data-1001',
-      DMP_BLOB_STORAGE_NAME: 'tstdmpinfdl1001',
-      value: 2
-    },
-    {
-      text: 'www.google.co.uk',
-      url: 'www.google.co.uk',
-      selected: true,
-      value: 3
-    },
-    {
-      text: 'fcpaipocuksoai.openai.azure.com',
-      url: 'fcpaipocuksoai.openai.azure.com',
-      value: 4
-    },
-    {
-      text: 'fcpaipocuksss.search.windows.net',
-      url: 'fcpaipocuksss.search.windows.net',
-      value: 5
-    },
-    {
-      text: '10.205.37.246 fcpaipocuksss.search.windows.net',
-      url: '10.205.37.246',
-      value: 6
-    },
-    {
-      text: 'devffcdbssq1002.postgres.database.azure.com',
-      url: 'devffcdbssq1002.postgres.database.azure.com',
-      value: 7
-    }
-  ],
+  urlList: buildURLList(),
   staticCacheTimeout: {
     doc: 'Static cache timeout in milliseconds',
     format: Number,

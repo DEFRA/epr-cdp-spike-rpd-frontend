@@ -1,6 +1,5 @@
 import { connectivityController } from '~/src/server/connectivity/controller.js'
 import { makeConnectionController } from '~/src/server/connectivity/connections.js'
-import { makePostConnectionController } from '~/src/server/connectivity/postconnections.js'
 
 /**
  * Sets up the routes used in the /about page.
@@ -20,11 +19,6 @@ const connectivity = {
           method: 'GET',
           path: '/connectivity/connections',
           ...makeConnectionController
-        },
-        {
-          method: 'POST',
-          path: '/connectivity/postconnections',
-          ...makePostConnectionController
         }
       ])
     }
